@@ -23,12 +23,13 @@ cd jiangsu-exam-knowledge-system
 
 准备 Java 17、Maven、独立的开发数据库，以及满足当前前端依赖要求的 Node.js/npm。数据库连接和初始化规则应先核对后端配置，避免连接到生产数据。
 
-**终端一：后端。**
+**终端一：从仓库根目录启动后端。**
 
 ```sh
-cd backend
-mvn spring-boot:run
+npm run server
 ```
+
+也可手动进入 `backend` 执行 `mvn spring-boot:run`。两个入口均使用现有 Maven 工程。
 
 **终端二：从仓库根目录启动前端，不要停留在 backend。**
 
@@ -49,23 +50,23 @@ npm run dev
 | [package.json](./package.json) | Vite、React、Redux 和可视化依赖 |
 | [江苏省考知识点模块化系统.md](./江苏省考知识点模块化系统.md) | 原有业务设计资料 |
 
-根目录中没有 `server/`，但 package.json 仍保留 `server` / `server:dev` 脚本指向 `server/index.js`。这些属于遗留入口，不能用于启动现有 Spring Boot 后端。本文使用已存在的 Maven 工程，不凭这些旧脚本推断另一个 Node 后端可用。
+`server` / `server:dev` 已从不存在的 `server/index.js` 改为在 `backend` 工作目录执行 Maven。旧命令名保留兼容，但不再假设存在另一个 Node 后端；`server:dev` 不额外启用未经核实的开发 profile。
 
 ## 开发核对
 
-```sh
-# 仓库根目录：构建前端
-npm run build
+以下命令均从仓库根目录执行：
 
-# backend 目录：执行后端测试和构建
-mvn test
-mvn package
-```
+| 命令 | 作用 |
+| --- | --- |
+| `npm run build` | Vite 前端构建 |
+| `npm run backend:test` | 在 backend 执行 `mvn test` |
+| `npm run backend:build` | 在 backend 执行 `mvn package` |
+| `npm run test:workspace` | 无外部依赖的脚本配置检查；POSIX 下使用 Maven 替身验证目录和参数转发 |
 
-前端 build 当前为 `vite build`，不等于已经完成独立的 TypeScript 类型检查或端到端测试；root manifest 没有 test/lint 脚本，不编造这些命令。
+五项工作空间回归已在 Linux / Node.js 22.16.0 通过；测试没有启动 Java、访问数据库或编译应用。Windows 下仅验证命令配置，不把它计为 Windows 进程联调。前端 build 当前为 `vite build`，不等于独立的 TypeScript 类型检查或端到端验收。
 
 重点验证知识点增删改查、依赖关系环、空分类、重复提交、用户隔离和进度保存。初始化 SQL 或自动建表可能写入数据库，应先检查实际配置和备份。
 
 现有依赖同时保留 MySQL 与 H2；运行使用哪一种由配置决定，不能因依赖存在就声称两者均已验收。原来 Node.js 16 的说明也不再作为当前前端环境保证。
 
-2026-09-08：核对 README、根目录、package.json 与 pom.xml，修正占位克隆地址和前后端工作目录；没有变更依赖、运行数据库或执行上述测试。问题反馈请附脱敏配置、实际命令和最小复现，不上传个人学习记录。
+2026-09-08 修正文档；2026-09-09 修复实际启动脚本并添加回归。Java/前端依赖及锁文件不变，没有启动数据库或执行应用部署。问题反馈请附脱敏配置、实际命令和最小复现，不上传个人学习记录。
